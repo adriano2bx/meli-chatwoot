@@ -93,7 +93,7 @@ Siga estes passos para configurar e implantar a integração.
     * **Name:** `meli-chatwoot-data` (ou um nome de sua preferência).
     * **Mount Path:** `/app`
 
-###6.  **Faça o Deploy:** Inicie o deploy. A aplicação será construída e iniciada. Monitore os logs para garantir que ambos os processos (`poller` e `webhook`) estão rodando.
+6.  **Faça o Deploy:** Inicie o deploy. A aplicação será construída e iniciada. Monitore os logs para garantir que ambos os processos (`poller` e `webhook`) estão rodando.
 
 
 
