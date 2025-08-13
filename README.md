@@ -98,3 +98,26 @@ Siga estes passos para configurar e implantar a integração.
 ---
 
 ## 📂 Estrutura do Projeto
+
+├── Dockerfile              # Receita para construir a imagem Docker.
+├── supervisord.conf        # Configuração do Supervisor para gerenciar os processos.
+├── requirements.txt        # Dependências Python do projeto.
+├── .gitignore              # Arquivos a serem ignorados pelo Git.
+├── .env.example            # Template para as variáveis de ambiente.
+├── db_manager.py           # Gerencia toda a interação com o banco de dados SQLite.
+├── config.py               # Carrega as configurações do ambiente e do DB.
+├── main.py                 # Processo "Poller": busca dados do Mercado Livre.
+├── webhook_server.py       # Processo "Listener": recebe respostas do Chatwoot.
+├── mercado_livre_api.py    # Módulo de comunicação com a API do Mercado Livre.
+└── chatwoot_api.py         # Módulo de comunicação com a API do Chatwoot.
+
+---
+
+## 🔮 Futuras Melhorias
+
+A arquitetura modular desta aplicação facilita a expansão para outros canais. Para adicionar um novo marketplace (ex: Shopee), os passos seriam:
+
+1.  Criar um novo módulo `shopee_api.py`.
+2.  Adicionar as novas credenciais ao `config.py`.
+3.  Adicionar uma nova função `process_shopee_messages()` ao `main.py` e ao agendador.
+4.  Atualizar o `webhook_server.py` para identificar e responder às conversas da Shopee.
