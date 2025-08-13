@@ -56,8 +56,8 @@ Siga estes passos para configurar e implantar a integração.
 1.  **Crie as Caixas de Entrada:**
     * Vá em **Configurações > Caixas de Entrada > Adicionar caixa de entrada** e selecione o canal **"API"**.
     * Crie duas caixas separadas:
-        * **Caixa 1:** Nome `Mercado Livre - Perguntas`, Webhook URL `https://sua-integracao.com.br/webhook`.
-        * **Caixa 2:** Nome `Mercado Livre - Vendas`, Webhook URL `https://sua-integracao.com.br/webhook`.
+        * **Caixa 1:** Nome `MeLi - Perguntas`, Webhook URL `https://sua-integracao.com.br/webhook`.
+        * **Caixa 2:** Nome `MeLi - Vendas`, Webhook URL `https://sua-integracao.com.br/webhook`.
     * Anote o **ID de cada caixa de entrada** (visível na URL do navegador ao editá-las).
 2.  **Crie o Webhook:**
     * Vá em **Configurações > Webhooks > Adicionar novo Webhook**.
