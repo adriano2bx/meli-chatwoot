@@ -93,25 +93,12 @@ Siga estes passos para configurar e implantar a integração.
     * Adicione um **"Volume Mount"**.
     * **Name:** `meli-chatwoot-data` (ou um nome de sua preferência).
     * **Mount Path:** `/app`
-6.  **Faça o Deploy:** Inicie o deploy. A aplicação será construída e iniciada. Monitore os logs para garantir que ambos os processos (`poller` e `webhook`) estão rodando.
+
+###6.  **Faça o Deploy:** Inicie o deploy. A aplicação será construída e iniciada. Monitore os logs para garantir que ambos os processos (`poller` e `webhook`) estão rodando.
 
 ---
 
-## 📂 Estrutura do Projeto
 
-├── Dockerfile              # Receita para construir a imagem Docker.
-├── supervisord.conf        # Configuração do Supervisor para gerenciar os processos.
-├── requirements.txt        # Dependências Python do projeto.
-├── .gitignore              # Arquivos a serem ignorados pelo Git.
-├── .env.example            # Template para as variáveis de ambiente.
-├── db_manager.py           # Gerencia toda a interação com o banco de dados SQLite.
-├── config.py               # Carrega as configurações do ambiente e do DB.
-├── main.py                 # Processo "Poller": busca dados do Mercado Livre.
-├── webhook_server.py       # Processo "Listener": recebe respostas do Chatwoot.
-├── mercado_livre_api.py    # Módulo de comunicação com a API do Mercado Livre.
-└── chatwoot_api.py         # Módulo de comunicação com a API do Chatwoot.
-
----
 
 ## 🔮 Futuras Melhorias
 
