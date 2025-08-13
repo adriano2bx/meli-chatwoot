@@ -41,17 +41,12 @@ def process_questions():
         user_id = q['from']['id']
         try:
             contact_info = chatwoot_api.find_or_create_contact(identifier=user_id, name=f"Cliente MELI (ID: {user_id})")
-            
-            # --- BLOCO CORRIGIDO ---
-            # Agora usamos nosso cabeçalho de autenticação para buscar os detalhes do item
             item_response = requests.get(
                 f"https://api.mercadolibre.com/items/{q['item_id']}",
                 headers=mercado_livre_api.get_auth_header()
             )
-            item_response.raise_for_status() # Garante que a chamada foi bem sucedida
+            item_response.raise_for_status()
             item_info = item_response.json()
-            # --- FIM DO BLOCO CORRIGIDO ---
-
             item_title = item_info.get('title', 'Produto não encontrado')
             message_body = f"**Produto:** {item_title}\n**Link:** {item_info.get('permalink', 'N/A')}\n\n**Pergunta:**\n_{q['text']}_"
             meli_attributes = {"meli_question_id": str(question_id)}
@@ -68,7 +63,7 @@ def process_questions():
     print(f"[{time.ctime()}] Verificação de perguntas concluída.")
 
 def process_messages():
-    """Busca mensagens não lidas em pedidos recentes e as cria no Chatwoot."""
+    """Busca mensagens não lidas e as adiciona a conversas existentes ou cria novas."""
     print(f"[{time.ctime()}] Iniciando verificação de mensagens pós-venda...")
     processed_msg_ids = load_processed_ids(PROCESSED_MESSAGES_FILE)
     try:
@@ -93,48 +88,72 @@ def process_messages():
             print(f"Nova mensagem encontrada no pedido com Pack ID {pack_id}")
             buyer = order.get('buyer', {})
             try:
-                contact_info = chatwoot_api.find_or_create_contact(identifier=buyer.get('id'), name=f"{buyer.get('first_name', '')} {buyer.get('last_name', '')}".strip(), email=buyer.get('email'))
-                contact_id = contact_info['id']
+                # --- LÓGICA DE CHAT CONTÍNUO (V2.1) ---
+                existing_conversation = chatwoot_api.search_conversation(pack_id)
+                
                 message_text = msg.get('text', '')
                 attachments = msg.get('attachments', [])
-                meli_attributes = {"meli_pack_id": str(pack_id)}
 
-                if not attachments:
-                    if not message_text.strip(): continue
-                    message_body = f"**Mensagem sobre a Venda #{order['id']}**\n\n_{message_text}_"
-                    chatwoot_api.create_conversation(
-                        inbox_id=config.CHATWOOT_MESSAGES_INBOX_ID,
-                        contact_id=contact_id,
-                        message_body=message_body,
-                        custom_attributes=meli_attributes
-                    )
+                if existing_conversation:
+                    # --- CONVERSA EXISTENTE: ADICIONAR MENSAGEM ---
+                    print(f"Conversa existente encontrada (ID: {existing_conversation['id']}). Adicionando nova mensagem.")
+                    conversation_id = existing_conversation['id']
+                    
+                    if not attachments:
+                        if not message_text.strip(): continue
+                        chatwoot_api.add_message_to_conversation(conversation_id, message_text)
+                    else:
+                        attachment = attachments[0]
+                        file_url = attachment.get('url')
+                        if not file_url: continue
+                        filename = attachment.get('filename', 'anexo.jpg')
+                        
+                        print(f"Baixando anexo: {filename}")
+                        file_response = requests.get(file_url, timeout=30)
+                        file_response.raise_for_status()
+                        
+                        chatwoot_api.add_message_to_conversation(
+                            conversation_id, message_text,
+                            file_content=file_response.content, filename=filename
+                        )
                 else:
-                    print(f"Mensagem com {len(attachments)} anexo(s) encontrada. Processando...")
-                    attachment = attachments[0]
-                    file_url = attachment.get('url')
-                    if not file_url: continue
-                    filename = attachment.get('filename', 'anexo.jpg')
-                    
-                    print(f"Baixando anexo: {filename}")
-                    file_response = requests.get(file_url, timeout=30)
-                    file_response.raise_for_status()
-                    
-                    message_body = f"**Anexo recebido sobre a Venda #{order['id']}**\n\n_{message_text}_"
-                    chatwoot_api.create_conversation_with_attachment(
-                        inbox_id=config.CHATWOOT_MESSAGES_INBOX_ID,
-                        contact_id=contact_id,
-                        message_body=message_body,
-                        custom_attributes=meli_attributes,
-                        file_content=file_response.content,
-                        filename=filename
-                    )
+                    # --- NENHUMA CONVERSA ENCONTRADA: CRIAR NOVA ---
+                    print(f"Nenhuma conversa existente para o pack {pack_id}. Criando nova.")
+                    contact_info = chatwoot_api.find_or_create_contact(identifier=buyer.get('id'), name=f"{buyer.get('first_name', '')} {buyer.get('last_name', '')}".strip(), email=buyer.get('email'))
+                    contact_id = contact_info['id']
+                    meli_attributes = {"meli_pack_id": str(pack_id)}
+
+                    if not attachments:
+                        if not message_text.strip(): continue
+                        message_body = f"**Início da conversa sobre a Venda #{order['id']}**\n\n_{message_text}_"
+                        chatwoot_api.create_conversation(
+                            inbox_id=config.CHATWOOT_MESSAGES_INBOX_ID, contact_id=contact_id,
+                            message_body=message_body, custom_attributes=meli_attributes
+                        )
+                    else:
+                        attachment = attachments[0]
+                        file_url = attachment.get('url')
+                        if not file_url: continue
+                        filename = attachment.get('filename', 'anexo.jpg')
+                        
+                        print(f"Baixando anexo: {filename}")
+                        file_response = requests.get(file_url, timeout=30)
+                        file_response.raise_for_status()
+                        
+                        message_body = f"**Início da conversa sobre a Venda #{order['id']}**\n\n_{message_text}_"
+                        chatwoot_api.create_conversation_with_attachment(
+                            inbox_id=config.CHATWOOT_MESSAGES_INBOX_ID, contact_id=contact_id,
+                            message_body=message_body, custom_attributes=meli_attributes,
+                            file_content=file_response.content, filename=filename
+                        )
+
                 save_processed_id(PROCESSED_MESSAGES_FILE, msg_id)
             except Exception as e:
                 print(f"Falha ao processar mensagem {msg_id}: {e}")
     print(f"[{time.ctime()}] Verificação de mensagens concluída.")
 
 if __name__ == "__main__":
-    print(f"[{time.ctime()}] >>> Iniciando serviço de integração Meli-Chatwoot (Poller) V2.0 <<<")
+    print(f"[{time.ctime()}] >>> Iniciando serviço de integração Meli-Chatwoot (Poller) V2.1 <<<")
     try:
         process_questions()
         process_messages()
