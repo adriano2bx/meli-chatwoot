@@ -1,0 +1,7 @@
+# requirements.txt
+requests
+python-dotenv
+schedule
+Flask
+gunicorn
+supervisor
