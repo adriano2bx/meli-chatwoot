@@ -17,7 +17,7 @@ def find_or_create_contact(identifier, name, email=None):
         return data['payload'][0]
     else:
         create_url = f"{BASE_URL}/contacts"
-        payload = {"name": name, "email": email, "identifier": str(identifier)}
+        payload = {"name": name, "email": email, "avatar_url": https://logodownload.org/wp-content/uploads/2016/08/mercado-livre-logo-0-1.png, "identifier": str(identifier)}
         response = requests.post(create_url, headers=HEADERS, data=json.dumps(payload))
         response.raise_for_status()
         return response.json()['payload']['contact']
