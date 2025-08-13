@@ -95,15 +95,6 @@ Siga estes passos para configurar e implantar a integração.
 
 ###6.  **Faça o Deploy:** Inicie o deploy. A aplicação será construída e iniciada. Monitore os logs para garantir que ambos os processos (`poller` e `webhook`) estão rodando.
 
----
 
 
 
-## 🔮 Futuras Melhorias
-
-A arquitetura modular desta aplicação facilita a expansão para outros canais. Para adicionar um novo marketplace (ex: Shopee), os passos seriam:
-
-1.  Criar um novo módulo `shopee_api.py`.
-2.  Adicionar as novas credenciais ao `config.py`.
-3.  Adicionar uma nova função `process_shopee_messages()` ao `main.py` e ao agendador.
-4.  Atualizar o `webhook_server.py` para identificar e responder às conversas da Shopee.
