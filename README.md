@@ -1,4 +1,4 @@
-# Integração Multicanal para E-commerce com Chatwoot
+# Integração MeLi e Chatwoot
 
 ![Versão](https://img.shields.io/badge/versão-2.2-blue)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-yellow.svg)
