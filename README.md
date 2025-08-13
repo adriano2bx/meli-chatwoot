@@ -63,7 +63,6 @@ Siga estes passos para configurar e implantar a integração.
     * Vá em **Configurações > Webhooks > Adicionar novo Webhook**.
     * **URL:** `https://sua-integracao.com.br/webhook`.
     * **Assinaturas:** Marque **apenas** a caixa `message_created`.
-    * Anote a **`HMAC Secret Key`** gerada.
 3.  **Obtenha o Token de Acesso:**
     * No seu perfil de usuário, copie o seu **`Token de Acesso`**.
 
